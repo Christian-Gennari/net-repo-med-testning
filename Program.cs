@@ -1,2 +1,4 @@
-Duck duck = new Duck { Name = "Donald" };
+﻿Duck duck = new Duck { Name = "Donald" };
 Console.WriteLine(duck.Quack());
+
+Console.WriteLine("hej");
