@@ -4,9 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,8 +19,34 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build --no-restore
+      - name: Check formatting
+        run: dotnet format net-repo-med-testning.slnx --verify-no-changes --no-restore
+
+      - name: Build (warnings are errors)
+        run: dotnet build --no-restore -warnaserror
 
       - name: Test
         run: dotnet test --no-build
+
+  publish:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish Windows exe
+        run: >
+          dotnet publish net-repo-med-testning.csproj
+          -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true
+          -o publish
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: net-repo-med-testning-win-x64
+          path: publish/

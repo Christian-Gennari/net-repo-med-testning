@@ -11,7 +11,7 @@ public class DuckTests
 
         var result = duck.Quack();
 
-        Assert.Equal("Donald quacks!", result);
+        Assert.Equal("WRONG", result);
     }
 
     [Theory]
